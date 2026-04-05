@@ -6,7 +6,6 @@ os.environ["SSL_CERT_FILE"] = certifi.where()
 os.environ["REQUESTS_CA_BUNDLE"] = certifi.where()
 ssl._create_default_https_context = ssl.create_default_context
 
-import urllib.request
 import streamlit as st
 import torch
 import torch.nn as nn
@@ -27,499 +26,485 @@ st.set_page_config(
 )
 
 # ─────────────────────────────────────────────
-# CSS — dark theme, Plus Jakarta Sans, narrow, NO RED
+# STYLES
 # ─────────────────────────────────────────────
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&family=Noto+Serif+Georgian:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Geist+Mono:wght@400;500&display=swap');
 
-/* ════════════════════════════════════════════
-   NUCLEAR RED ELIMINATION
-   Target every known BaseWeb/Streamlit element
-   that shows red by default
-   ════════════════════════════════════════════ */
-
-/* Slider thumb — BaseWeb renders inline style; override fill */
-[data-baseweb="slider"] [role="slider"] {
-    background-color: #5b6ef5 !important;
-    border-color: #5b6ef5 !important;
-    box-shadow: none !important;
-}
-/* Slider filled track */
-[data-baseweb="slider"] div[data-testid="stSliderTrackFill"],
-[data-baseweb="slider"] > div > div > div:first-child {
-    background-color: #5b6ef5 !important;
-}
-/* BaseWeb slider inner track segments */
-[data-baseweb="slider"] > div > div > div {
-    background-color: #3a3a4a !important;
-}
-[data-baseweb="slider"] > div > div > div:first-child {
-    background-color: #5b6ef5 !important;
-}
-/* Slider value tooltip */
-[data-baseweb="slider"] [data-baseweb="tooltip"] {
-    background-color: #5b6ef5 !important;
-}
-/* Thumb knob absolute override */
-div[class*="StyledThumb"] {
-    background-color: #5b6ef5 !important;
-    border-color: #5b6ef5 !important;
-}
-/* Track fill class-based */
-div[class*="StyledInnerTrack"]:first-child {
-    background-color: #5b6ef5 !important;
-}
-
-/* Primary button — force blue, kill salmon/red */
-button[kind="primary"],
-[data-testid="baseButton-primary"],
-[data-testid="baseButton-primary"]:focus,
-[data-testid="baseButton-primary"]:active {
-    background-color: #5b6ef5 !important;
-    background: #5b6ef5 !important;
-    border-color: #5b6ef5 !important;
-    color: #ffffff !important;
-    box-shadow: none !important;
-}
-[data-testid="baseButton-primary"]:hover {
-    background-color: #4a5ce0 !important;
-    background: #4a5ce0 !important;
-}
-
-/* Radio button selected dot */
-[data-baseweb="radio"] [data-checked="true"] div,
-[data-baseweb="radio"] input[type="radio"]:checked + div,
-[data-baseweb="radio"] [aria-checked="true"] div {
-    background-color: #5b6ef5 !important;
-    border-color: #5b6ef5 !important;
-}
-/* Radio outer ring */
-[data-baseweb="radio"] div[role="radio"][aria-checked="true"] {
-    border-color: #5b6ef5 !important;
-}
-/* All radio circles */
-[data-baseweb="radio"] div {
-    border-color: inherit;
-}
-
-/* Focus ring — kill red outline */
-*:focus, *:focus-visible {
-    outline-color: #5b6ef5 !important;
-    box-shadow: 0 0 0 2px rgba(91,110,245,0.35) !important;
-}
-
-/* Notification / alert icon colors */
-[data-testid="stNotification"] svg,
-[data-baseweb="notification"] svg {
-    fill: #5b6ef5 !important;
-    color: #5b6ef5 !important;
-}
-
-/* Select slider selected value indicator */
-[data-testid="stSelectSlider"] [role="slider"] {
-    background-color: #5b6ef5 !important;
-    border-color: #5b6ef5 !important;
-}
-
-/* Any lingering inline color="red" or style="color:red" */
-[style*="color: rgb(255"] { color: inherit !important; }
-[style*="background-color: rgb(255, 75"] { background-color: #5b6ef5 !important; }
-[style*="background: rgb(255, 75"] { background: #5b6ef5 !important; }
-
-
-/* ── Design tokens (dark) ── */
+/* ── Tokens ── */
 :root {
-    --background:           oklch(0 0 0);
-    --foreground:           oklch(1 0 0);
-    --card:                 oklch(0.2103 0 267.51);
-    --card-foreground:      oklch(0.9461 0 0);
-    --primary:              oklch(0.5144 0.1605 267.44);
-    --primary-foreground:   oklch(0.97 0.014 254.604);
-    --secondary:            oklch(0.25 0 0);
-    --secondary-foreground: oklch(0.94 0 0);
-    --muted:                oklch(0.23 0 0);
-    --muted-foreground:     oklch(0.72 0 0);
-    --accent:               oklch(0.32 0 0);
-    --accent-foreground:    oklch(0.9214 0.0248 257.65);
-    --border:               oklch(0.26 0 0);
-    --input:                oklch(0.32 0 0);
-    --ring:                 oklch(0.5144 0.1605 267.44);
-    --success:              oklch(0.65 0.15 145);
-    --radius:               0.5rem;
-    --font-sans:            'Plus Jakarta Sans', sans-serif;
-    --font-mono:            'Geist Mono', monospace;
-    --font-serif:           'Noto Serif Georgian', ui-serif, serif;
+    --bg:        #000000;
+    --surface:   #141417;
+    --surface2:  #1c1c21;
+    --border:    #2a2a30;
+    --border2:   #333340;
+    --primary:   #6366f1;
+    --primary-h: #4f52d4;
+    --text:      #f4f4f5;
+    --text-2:    #a1a1aa;
+    --text-3:    #71717a;
+    --mono:      'Geist Mono', monospace;
+    --sans:      'Plus Jakarta Sans', sans-serif;
+    --r:         8px;
 }
 
-/* ── Global reset ── */
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; }
+
 html, body,
 [data-testid="stAppViewContainer"],
-[data-testid="stMain"],
-[data-testid="block-container"] {
-    background-color: var(--background) !important;
-    color: var(--foreground);
-    font-family: var(--font-sans) !important;
+[data-testid="stMain"] {
+    background: var(--bg) !important;
+    font-family: var(--sans) !important;
+    color: var(--text) !important;
 }
 
-/* Hide Streamlit chrome */
+/* Hide chrome */
 #MainMenu, footer, header,
 [data-testid="stDecoration"],
-[data-testid="stSidebarNav"],
+[data-testid="stToolbar"],
+[data-testid="stSidebar"],
 [data-testid="collapsedControl"] { display: none !important; }
 
-[data-testid="stSidebar"] { display: none !important; }
-
-/* Narrow centered layout */
+/* Container width */
 [data-testid="block-container"] {
-    max-width: 720px !important;
-    padding: 2.5rem 1.5rem 4rem 1.5rem !important;
+    max-width: 680px !important;
+    padding: 3rem 1.25rem 5rem !important;
     margin: 0 auto !important;
 }
 
-/* ── Typography ── */
-h1, h2, h3 {
-    font-family: var(--font-sans) !important;
-    color: var(--foreground) !important;
-    letter-spacing: -0.02em;
+/* All text */
+p, span, div, label, li, td, th, a,
+[data-testid="stMarkdownContainer"] p {
+    font-family: var(--sans) !important;
 }
 
-p, span, label, div {
-    font-family: var(--font-sans) !important;
-}
-
-/* ── Page header ── */
-.nst-eyebrow {
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    letter-spacing: 0.14em;
+/* ── HEADER ── */
+.app-eyebrow {
+    font-family: var(--mono) !important;
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--primary);
-    margin-bottom: 0.75rem;
-    display: block;
-}
-.nst-header {
-    padding: 1.5rem 0 2rem 0;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 2rem;
-}
-.nst-header h1 {
-    font-family: var(--font-sans) !important;
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--foreground);
-    letter-spacing: -0.03em;
-    margin: 0 0 0.4rem 0;
-    line-height: 1.15;
-}
-.nst-header p {
-    font-family: var(--font-sans);
-    font-size: 0.875rem;
-    font-weight: 400;
-    color: var(--muted-foreground);
-    margin: 0;
-    line-height: 1.6;
-}
-
-/* ── Section label ── */
-.section-label {
-    display: block;
-    font-family: var(--font-mono);
-    font-size: 0.62rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--muted-foreground);
     margin-bottom: 0.6rem;
+    display: block;
 }
-
-/* ── Device badge ── */
-.device-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.25rem 0.65rem;
-    border-radius: calc(var(--radius) - 2px);
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    margin-bottom: 1.5rem;
+.app-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.03em;
+    margin: 0 0 0.35rem;
+    line-height: 1.2;
 }
-.device-gpu { background: oklch(0.18 0.05 145); color: oklch(0.75 0.15 145); border: 1px solid oklch(0.28 0.08 145); }
-.device-cpu { background: oklch(0.2 0.04 267); color: oklch(0.75 0.1 267);  border: 1px solid oklch(0.32 0.08 267); }
-
-/* ── Upload hint ── */
-.upload-hint {
-    font-family: var(--font-sans);
-    font-size: 0.78rem;
-    color: var(--muted-foreground);
-    margin-top: 0.35rem;
-    line-height: 1.5;
+.app-sub {
+    font-size: 0.85rem;
+    color: var(--text-2);
+    margin: 0 0 1.75rem;
+    line-height: 1.65;
+    font-weight: 400;
 }
-
-/* ── Divider ── */
-.nst-divider {
+.app-divider {
     border: none;
     border-top: 1px solid var(--border);
-    margin: 1.75rem 0;
+    margin: 1.5rem 0;
 }
 
-/* ── Status text ── */
-.status-text {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--muted-foreground);
-    letter-spacing: 0.02em;
-}
-
-/* ── Theory block ── */
-.theory-block {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.5rem;
-}
-.theory-block h4 {
-    font-family: var(--font-sans);
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--card-foreground);
-    margin: 0 0 0.85rem 0;
-    letter-spacing: -0.01em;
-}
-.theory-block p, .theory-block li {
-    font-family: var(--font-sans);
-    font-size: 0.84rem;
-    color: var(--muted-foreground);
-    line-height: 1.75;
-}
-.theory-block li { margin-bottom: 0.4rem; }
-.theory-block strong { color: var(--card-foreground); font-weight: 600; }
-.theory-block code {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    background: var(--muted);
-    color: var(--accent-foreground);
-    padding: 1px 6px;
-    border-radius: 3px;
-}
-.theory-block table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 1.1rem;
-    font-size: 0.82rem;
-}
-.theory-block th {
-    font-family: var(--font-mono);
+/* ── DEVICE BADGE ── */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 100px;
+    font-family: var(--mono) !important;
     font-size: 0.6rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--muted-foreground);
-    padding: 0.45rem 0.65rem;
-    border-bottom: 1px solid var(--border);
-    text-align: left;
-    font-weight: 400;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
 }
-.theory-block td {
-    font-family: var(--font-sans);
-    padding: 0.5rem 0.65rem;
-    border-bottom: 1px solid var(--border);
-    color: var(--card-foreground);
-    font-size: 0.83rem;
+.badge-cpu {
+    background: rgba(99,102,241,0.12);
+    color: #818cf8;
+    border: 1px solid rgba(99,102,241,0.25);
+}
+.badge-gpu {
+    background: rgba(34,197,94,0.1);
+    color: #4ade80;
+    border: 1px solid rgba(34,197,94,0.2);
+}
+.badge-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+    display: inline-block;
 }
 
-/* ── Footer ── */
-.nst-footer {
-    margin-top: 3rem;
-    padding-top: 1.25rem;
-    border-top: 1px solid var(--border);
-    font-family: var(--font-mono);
-    font-size: 0.62rem;
-    letter-spacing: 0.1em;
-    color: var(--muted-foreground);
-    text-align: center;
+/* ── SECTION LABEL ── */
+.sec-label {
+    font-family: var(--mono) !important;
+    font-size: 0.58rem;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
+    color: var(--text-3);
+    margin-bottom: 0.65rem;
+    display: block;
 }
 
-/* ── Streamlit widget overrides ── */
+/* ── HINT TEXT ── */
+.hint {
+    font-size: 0.78rem;
+    color: var(--text-3);
+    margin-top: 0.4rem;
+    line-height: 1.55;
+}
 
-/* All widget labels */
+/* ── STATUS TEXT ── */
+.status {
+    font-family: var(--mono) !important;
+    font-size: 0.72rem;
+    color: var(--text-3);
+}
+
+/* ════════════════════════════════
+   WIDGET OVERRIDES
+   ════════════════════════════════ */
+
+/* Labels */
 [data-testid="stWidgetLabel"] p,
-[data-testid="stWidgetLabel"] label,
-label {
-    font-family: var(--font-sans) !important;
-    font-size: 0.83rem !important;
-    color: var(--muted-foreground) !important;
+.stSlider label, .stSelectbox label,
+.stRadio label, .stFileUploader label {
+    font-family: var(--sans) !important;
+    font-size: 0.78rem !important;
     font-weight: 500 !important;
+    color: var(--text-2) !important;
+    letter-spacing: 0;
 }
 
-/* File uploader */
+/* ── File uploader ── */
+[data-testid="stFileUploader"] {
+    width: 100%;
+}
 [data-testid="stFileUploader"] > div {
-    background: var(--card) !important;
-    border: 1px dashed var(--border) !important;
-    border-radius: var(--radius) !important;
-    transition: border-color 0.15s ease;
+    background: var(--surface) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--r) !important;
+    padding: 1.25rem !important;
+    transition: border-color 0.2s !important;
 }
 [data-testid="stFileUploader"] > div:hover {
     border-color: var(--primary) !important;
 }
-[data-testid="stFileUploader"] label,
-[data-testid="stFileUploader"] p,
-[data-testid="stFileUploader"] span {
-    font-family: var(--font-sans) !important;
-    color: var(--muted-foreground) !important;
-    font-size: 0.83rem !important;
+/* The "Browse files" button inside uploader */
+[data-testid="stFileUploaderDropzone"] button {
+    background: var(--surface2) !important;
+    color: var(--text) !important;
+    border: 1px solid var(--border2) !important;
+    border-radius: 6px !important;
+    font-family: var(--sans) !important;
+    font-size: 0.78rem !important;
+    font-weight: 500 !important;
+    padding: 0.35rem 0.8rem !important;
+    white-space: nowrap !important;
+    box-shadow: none !important;
+}
+[data-testid="stFileUploaderDropzone"] button:hover {
+    border-color: var(--primary) !important;
+}
+[data-testid="stFileUploader"] small,
+[data-testid="stFileUploader"] span,
+[data-testid="stFileUploader"] p {
+    font-family: var(--sans) !important;
+    font-size: 0.75rem !important;
+    color: var(--text-3) !important;
+}
+/* Label above uploader */
+[data-testid="stFileUploader"] label {
+    font-size: 0.82rem !important;
+    font-weight: 500 !important;
+    color: var(--text-2) !important;
+    margin-bottom: 0.4rem !important;
 }
 
-/* Radio buttons */
+/* ── Selectbox ── */
+[data-testid="stSelectbox"] > div > div {
+    background: var(--surface) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--r) !important;
+    color: var(--text) !important;
+    font-family: var(--sans) !important;
+    font-size: 0.85rem !important;
+    min-height: 40px !important;
+}
+[data-testid="stSelectbox"] > div > div:hover {
+    border-color: var(--border2) !important;
+}
+[data-baseweb="select"] svg { color: var(--text-3) !important; }
+[data-baseweb="popover"] {
+    background: var(--surface2) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--r) !important;
+}
+[data-baseweb="menu"] li {
+    font-family: var(--sans) !important;
+    font-size: 0.83rem !important;
+    color: var(--text) !important;
+}
+[data-baseweb="menu"] li:hover { background: var(--border) !important; }
+
+/* ── Sliders — kill all red ── */
+[data-baseweb="slider"] {
+    padding-top: 0.25rem !important;
+}
+/* Track background */
+[data-baseweb="slider"] > div > div > div {
+    background: var(--border) !important;
+    border-radius: 99px !important;
+    height: 3px !important;
+}
+/* Filled portion */
+[data-baseweb="slider"] > div > div > div:first-child {
+    background: var(--primary) !important;
+}
+/* Thumb */
+[data-baseweb="slider"] [role="slider"] {
+    background: var(--primary) !important;
+    border: 2px solid var(--primary) !important;
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.2) !important;
+    width: 14px !important;
+    height: 14px !important;
+}
+[data-baseweb="slider"] [role="slider"]:hover {
+    box-shadow: 0 0 0 5px rgba(99,102,241,0.25) !important;
+}
+div[class*="StyledThumb"] {
+    background: var(--primary) !important;
+    border-color: var(--primary) !important;
+}
+div[class*="StyledInnerTrack"]:first-child {
+    background: var(--primary) !important;
+}
+/* Tooltip on slider */
+[data-baseweb="tooltip"] div {
+    background: var(--surface2) !important;
+    color: var(--text) !important;
+    font-family: var(--mono) !important;
+    font-size: 0.65rem !important;
+    border: 1px solid var(--border2) !important;
+}
+
+/* ── Radio — pill style, no red dot ── */
 [data-testid="stRadio"] > div {
     gap: 0.5rem !important;
     flex-direction: row !important;
+    flex-wrap: wrap !important;
+    margin-top: 0.35rem !important;
 }
 [data-testid="stRadio"] label {
-    font-family: var(--font-sans) !important;
-    font-size: 0.83rem !important;
-    color: var(--muted-foreground) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0 !important;
+    padding: 0.35rem 1rem !important;
+    border-radius: 100px !important;
+    border: 1px solid var(--border) !important;
+    background: var(--surface) !important;
+    cursor: pointer !important;
+    transition: all 0.15s !important;
+    font-family: var(--sans) !important;
+    font-size: 0.8rem !important;
+    font-weight: 500 !important;
+    color: var(--text-2) !important;
 }
 [data-testid="stRadio"] label:has(input:checked) {
-    color: var(--foreground) !important;
-}
-
-/* Selectbox */
-[data-testid="stSelectbox"] label {
-    font-family: var(--font-sans) !important;
-    font-size: 0.83rem !important;
-    color: var(--muted-foreground) !important;
-}
-[data-testid="stSelectbox"] > div > div {
-    background: var(--card) !important;
-    border: 1px solid var(--border) !important;
-    border-radius: var(--radius) !important;
-    color: var(--card-foreground) !important;
-    font-family: var(--font-sans) !important;
-    font-size: 0.85rem !important;
-}
-
-/* Sliders */
-[data-testid="stSlider"] label,
-[data-testid="stSelectSlider"] label {
-    font-family: var(--font-sans) !important;
-    font-size: 0.83rem !important;
-    color: var(--muted-foreground) !important;
-}
-[data-testid="stSlider"] [data-baseweb="slider"] div[role="slider"],
-[data-testid="stSelectSlider"] [data-baseweb="slider"] div[role="slider"] {
-    background: var(--primary) !important;
     border-color: var(--primary) !important;
+    background: rgba(99,102,241,0.12) !important;
+    color: #c7d2fe !important;
+}
+[data-testid="stRadio"] label:hover {
+    border-color: var(--border2) !important;
+    color: var(--text) !important;
+}
+/* Hide the actual radio circle */
+[data-testid="stRadio"] [data-baseweb="radio"] > div:first-child {
+    display: none !important;
 }
 
-/* Slider track fill — override any red */
-[data-testid="stSlider"] [data-baseweb="slider"] [data-testid="stSliderTrack"] > div:first-child,
-[data-testid="stSelectSlider"] [data-baseweb="slider"] [data-testid="stSliderTrack"] > div:first-child {
-    background: var(--primary) !important;
-}
-
-/* Primary button */
+/* ── Primary button ── */
 [data-testid="baseButton-primary"] {
     background: var(--primary) !important;
-    color: var(--primary-foreground) !important;
+    color: #fff !important;
     border: none !important;
-    font-family: var(--font-sans) !important;
+    border-radius: var(--r) !important;
+    font-family: var(--sans) !important;
+    font-size: 0.875rem !important;
     font-weight: 600 !important;
-    font-size: 0.875rem !important;
-    letter-spacing: 0.01em !important;
-    border-radius: var(--radius) !important;
-    transition: opacity 0.15s ease !important;
+    letter-spacing: 0 !important;
+    height: 42px !important;
+    transition: background 0.15s !important;
+    box-shadow: none !important;
 }
-[data-testid="baseButton-primary"]:hover { opacity: 0.85 !important; }
+[data-testid="baseButton-primary"]:hover {
+    background: var(--primary-h) !important;
+}
+[data-testid="baseButton-primary"]:focus,
+[data-testid="baseButton-primary"]:active {
+    background: var(--primary-h) !important;
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.3) !important;
+}
 
-/* Secondary / download button */
+/* ── Download / secondary button ── */
 [data-testid="baseButton-secondary"] {
-    background: var(--card) !important;
-    color: var(--card-foreground) !important;
+    background: var(--surface) !important;
+    color: var(--text) !important;
     border: 1px solid var(--border) !important;
-    font-family: var(--font-sans) !important;
+    border-radius: var(--r) !important;
+    font-family: var(--sans) !important;
     font-size: 0.875rem !important;
-    border-radius: var(--radius) !important;
-    transition: border-color 0.15s ease !important;
+    font-weight: 500 !important;
+    height: 42px !important;
+    box-shadow: none !important;
 }
 [data-testid="baseButton-secondary"]:hover {
     border-color: var(--primary) !important;
-    color: var(--foreground) !important;
 }
 
-/* Alerts — replace red with muted/primary tones */
-[data-testid="stAlert"] {
-    background: var(--card) !important;
-    border-radius: var(--radius) !important;
+/* ── Alerts ── */
+[data-testid="stAlert"],
+[data-baseweb="notification"] {
+    background: var(--surface) !important;
+    border: 1px solid var(--border) !important;
     border-left: 2px solid var(--primary) !important;
-    font-family: var(--font-sans) !important;
-    font-size: 0.84rem !important;
-    color: var(--card-foreground) !important;
+    border-radius: var(--r) !important;
+    font-family: var(--sans) !important;
+    font-size: 0.83rem !important;
+    color: var(--text) !important;
 }
-/* Override error alert red */
-[data-testid="stAlert"][data-baseweb="notification"] {
-    border-left-color: var(--muted-foreground) !important;
-}
-div[data-testid="stNotification"] {
-    background: var(--card) !important;
-    border-color: var(--primary) !important;
+[data-testid="stAlert"] svg,
+[data-baseweb="notification"] svg {
+    fill: var(--primary) !important;
+    color: var(--primary) !important;
 }
 
-/* Progress bar — no red */
+/* ── Progress bar ── */
+[data-testid="stProgress"] > div {
+    background: var(--surface2) !important;
+    border-radius: 99px !important;
+    height: 3px !important;
+}
 [data-testid="stProgress"] > div > div {
     background: var(--primary) !important;
     border-radius: 99px !important;
 }
-[data-testid="stProgress"] > div {
-    background: var(--muted) !important;
-    border-radius: 99px !important;
-}
 
-/* Expander */
+/* ── Expander ── */
 [data-testid="stExpander"] {
-    background: transparent !important;
+    background: var(--surface) !important;
     border: 1px solid var(--border) !important;
-    border-radius: var(--radius) !important;
+    border-radius: var(--r) !important;
+    overflow: hidden !important;
 }
 [data-testid="stExpander"] summary {
-    font-family: var(--font-sans) !important;
-    font-size: 0.85rem !important;
-    color: var(--muted-foreground) !important;
+    font-family: var(--sans) !important;
+    font-size: 0.83rem !important;
+    font-weight: 500 !important;
+    color: var(--text-2) !important;
     padding: 0.85rem 1rem !important;
 }
-[data-testid="stExpander"] summary:hover {
-    color: var(--foreground) !important;
+[data-testid="stExpander"] summary:hover { color: var(--text) !important; }
+[data-testid="stExpander"] > div > div { padding: 0 1rem 1rem !important; }
+
+/* ── Spinner ── */
+[data-testid="stSpinner"] p {
+    font-family: var(--sans) !important;
+    font-size: 0.83rem !important;
+    color: var(--text-3) !important;
 }
 
-/* Image captions */
+/* ── Images ── */
+[data-testid="stImage"] img {
+    border-radius: var(--r) !important;
+}
 [data-testid="caption"] {
-    font-family: var(--font-mono) !important;
-    font-size: 0.62rem !important;
+    font-family: var(--mono) !important;
+    font-size: 0.6rem !important;
     letter-spacing: 0.1em !important;
     text-transform: uppercase !important;
-    color: var(--muted-foreground) !important;
+    color: var(--text-3) !important;
     text-align: center !important;
+    margin-top: 0.4rem !important;
 }
 
-/* Spinner */
-[data-testid="stSpinner"] p {
-    font-family: var(--font-sans) !important;
-    font-size: 0.85rem !important;
-    color: var(--muted-foreground) !important;
+/* ── Focus rings ── */
+*:focus-visible {
+    outline: 2px solid var(--primary) !important;
+    outline-offset: 2px !important;
+    box-shadow: none !important;
 }
 
-/* Info / warning / success box overrides — no red */
-.stAlert > div {
-    background: var(--card) !important;
-    color: var(--card-foreground) !important;
-    font-family: var(--font-sans) !important;
+/* Kill any remaining inline red */
+[style*="background-color: rgb(255, 75"],
+[style*="background: rgb(255, 75"] {
+    background-color: var(--primary) !important;
+    background: var(--primary) !important;
 }
 
-/* Column gap */
-[data-testid="stHorizontalBlock"] {
-    gap: 1rem !important;
+/* ── Theory block ── */
+.theory h4 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0 0 0.75rem;
 }
+.theory p, .theory li {
+    font-size: 0.82rem;
+    color: var(--text-2);
+    line-height: 1.75;
+}
+.theory li { margin-bottom: 0.35rem; }
+.theory strong { color: var(--text); font-weight: 600; }
+.theory code {
+    font-family: var(--mono) !important;
+    font-size: 0.72rem;
+    background: rgba(99,102,241,0.1);
+    color: #a5b4fc;
+    padding: 1px 5px;
+    border-radius: 4px;
+}
+.theory table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+.theory th {
+    font-family: var(--mono) !important;
+    font-size: 0.58rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    padding: 0.4rem 0.6rem;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+    font-weight: 400;
+}
+.theory td {
+    font-size: 0.8rem;
+    padding: 0.45rem 0.6rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-2);
+}
+
+/* ── Footer ── */
+.app-footer {
+    margin-top: 3rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border);
+    font-family: var(--mono) !important;
+    font-size: 0.58rem;
+    letter-spacing: 0.12em;
+    color: var(--text-3);
+    text-align: center;
+    text-transform: uppercase;
+}
+
+[data-testid="stHorizontalBlock"] { gap: 0.75rem !important; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -532,12 +517,15 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # HEADER
 # ─────────────────────────────────────────────
 st.markdown("""
-<div class="nst-header">
-    <span class="nst-eyebrow">LLM &amp; Gen AI Lab &mdash; Experiment 6 &mdash; Task 2</span>
-    <h1>Neural Style Transfer</h1>
-    <p>Reimagine any photograph through the visual language of artistic masterworks, powered by VGG19.</p>
-</div>
+<span class="app-eyebrow">LLM &amp; Gen AI Lab &mdash; Experiment 6 &mdash; Task 2</span>
+<h1 class="app-title">Neural Style Transfer</h1>
+<p class="app-sub">Reimagine any photograph through the visual language of artistic masterworks, powered by VGG19.</p>
 """, unsafe_allow_html=True)
+
+if device.type == "cuda":
+    st.markdown('<span class="badge badge-gpu"><span class="badge-dot"></span>&nbsp;GPU &mdash; Accelerated</span>', unsafe_allow_html=True)
+else:
+    st.markdown('<span class="badge badge-cpu"><span class="badge-dot"></span>&nbsp;CPU &mdash; May be slow</span>', unsafe_allow_html=True)
 
 # ─────────────────────────────────────────────
 # HELPER FUNCTIONS
@@ -628,7 +616,7 @@ def load_vgg():
     return cnn.features.to(device).eval()
 
 def run_style_transfer(cnn, content_img, style_img, num_steps, style_weight,
-                       content_weight, progress_bar, status_text):
+                       content_weight, progress_bar, status_placeholder):
     model, style_losses, content_losses = build_model_and_losses(cnn, style_img, content_img)
     input_img = content_img.clone().requires_grad_(True)
     model.requires_grad_(False)
@@ -644,9 +632,10 @@ def run_style_transfer(cnn, content_img, style_img, num_steps, style_weight,
             loss.backward()
             run[0] += 1
             if run[0] % 10 == 0:
-                progress_bar.progress(min(int(run[0] / num_steps * 100), 100))
-                status_text.markdown(
-                    f'<p class="status-text">Step {run[0]} / {num_steps}&ensp;&mdash;&ensp;Loss: {loss.item():.4f}</p>',
+                pct = min(int(run[0] / num_steps * 100), 100)
+                progress_bar.progress(pct)
+                status_placeholder.markdown(
+                    f'<p class="status">Step {run[0]}&thinsp;/&thinsp;{num_steps}&nbsp;&mdash;&nbsp;Loss: {loss.item():.4f}</p>',
                     unsafe_allow_html=True
                 )
             return loss
@@ -655,28 +644,17 @@ def run_style_transfer(cnn, content_img, style_img, num_steps, style_weight,
     return input_img
 
 # ─────────────────────────────────────────────
-# DEVICE BADGE
-# ─────────────────────────────────────────────
-if device.type == "cuda":
-    st.markdown('<span class="device-badge device-gpu">&#9679; GPU &mdash; Accelerated</span>', unsafe_allow_html=True)
-else:
-    st.markdown('<span class="device-badge device-cpu">&#9679; CPU &mdash; May be slow</span>', unsafe_allow_html=True)
-
-# ─────────────────────────────────────────────
 # PARAMETERS
 # ─────────────────────────────────────────────
-st.markdown('<span class="section-label">Parameters</span>', unsafe_allow_html=True)
+st.markdown('<hr class="app-divider">', unsafe_allow_html=True)
+st.markdown('<span class="sec-label">Parameters</span>', unsafe_allow_html=True)
 
-p1, p2 = st.columns(2, gap="small")
-with p1:
-    image_size = st.selectbox(
-        "Resolution",
-        options=[128, 256, 512],
-        index=0,
-        help="Smaller = faster. 128px recommended on CPU."
-    )
+c1, c2 = st.columns(2)
+with c1:
+    image_size = st.selectbox("Resolution", options=[128, 256, 512], index=0,
+                               help="Smaller = faster. 128px recommended on CPU.")
     content_weight = st.slider("Content Weight", min_value=1, max_value=10, value=1)
-with p2:
+with c2:
     num_steps = st.slider("Optimization Steps", min_value=100, max_value=600, value=200, step=50)
     style_weight = st.select_slider(
         "Style Weight",
@@ -685,179 +663,144 @@ with p2:
         format_func=lambda x: f"{x:.0e}"
     )
 
-st.markdown('<hr class="nst-divider">', unsafe_allow_html=True)
+# ─────────────────────────────────────────────
+# CONTENT IMAGE
+# ─────────────────────────────────────────────
+st.markdown('<hr class="app-divider">', unsafe_allow_html=True)
+st.markdown('<span class="sec-label">01 — Content Image</span>', unsafe_allow_html=True)
 
-# ─────────────────────────────────────────────
-# IMAGE INPUTS
-# ─────────────────────────────────────────────
-st.markdown('<span class="section-label">01 &mdash; Content Image</span>', unsafe_allow_html=True)
 content_file = st.file_uploader(
-    "content_upload",
+    "Drop your content image here",
     type=["jpg", "jpeg", "png"],
-    key="content",
-    label_visibility="collapsed"
+    key="content"
 )
-st.markdown(
-    '<p class="upload-hint">The photograph whose structure and composition will be preserved.</p>',
-    unsafe_allow_html=True
-)
-if content_file:
-    st.image(content_file, caption="Content", use_container_width=True)
+if not content_file:
+    st.markdown('<p class="hint">The photograph whose structure and composition will be preserved.</p>', unsafe_allow_html=True)
+else:
+    st.image(content_file, use_container_width=True)
 
-st.markdown('<hr class="nst-divider">', unsafe_allow_html=True)
+# ─────────────────────────────────────────────
+# STYLE REFERENCE
+# ─────────────────────────────────────────────
+st.markdown('<hr class="app-divider">', unsafe_allow_html=True)
+st.markdown('<span class="sec-label">02 — Style Reference</span>', unsafe_allow_html=True)
 
-st.markdown('<span class="section-label">02 &mdash; Style Reference</span>', unsafe_allow_html=True)
-
-preset_styles = {
-    "Van Gogh — Starry Night": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/1280px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg",
-    "Picasso — Weeping Woman": "https://upload.wikimedia.org/wikipedia/en/1/14/Picasso_The_Weeping_Woman_Tate_identifier_T05010_10.jpg",
-    "Monet — Water Lilies":    "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Claude_Monet_-_Water_Lilies_-_1906%2C_Ryerson.jpg/1280px-Claude_Monet_-_Water_Lilies_-_1906%2C_Ryerson.jpg",
+PRESETS = {
+    "Van Gogh — Starry Night":  "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/1280px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg",
+    "Picasso — Weeping Woman":  "https://upload.wikimedia.org/wikipedia/en/1/14/Picasso_The_Weeping_Woman_Tate_identifier_T05010_10.jpg",
+    "Monet — Water Lilies":     "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Claude_Monet_-_Water_Lilies_-_1906%2C_Ryerson.jpg/1280px-Claude_Monet_-_Water_Lilies_-_1906%2C_Ryerson.jpg",
 }
 
-style_option = st.radio(
-    "style_source",
-    ["Upload your own", "Use preset artwork"],
+style_mode = st.radio(
+    "Style source",
+    ["Upload your own", "Use a preset"],
     horizontal=True,
     label_visibility="collapsed"
 )
 
-style_file     = None
+style_file      = None
 selected_preset = None
 
-if style_option == "Upload your own":
+if style_mode == "Upload your own":
     style_file = st.file_uploader(
-        "style_upload",
+        "Drop your style image here",
         type=["jpg", "jpeg", "png"],
-        key="style",
-        label_visibility="collapsed"
+        key="style"
     )
-    st.markdown(
-        '<p class="upload-hint">Any artwork or texture — its visual character will be transferred onto the content image.</p>',
-        unsafe_allow_html=True
-    )
-    if style_file:
-        st.image(style_file, caption="Style Reference", use_container_width=True)
+    if not style_file:
+        st.markdown('<p class="hint">Any artwork or texture — its visual character will be transferred onto your content image.</p>', unsafe_allow_html=True)
+    else:
+        st.image(style_file, use_container_width=True)
 else:
-    selected_preset = st.selectbox(
-        "preset_select",
-        list(preset_styles.keys()),
-        label_visibility="collapsed"
-    )
-    st.image(preset_styles[selected_preset], caption=selected_preset, use_container_width=True)
+    selected_preset = st.selectbox("Choose a preset", list(PRESETS.keys()), label_visibility="collapsed")
+    st.image(PRESETS[selected_preset], use_container_width=True)
 
 # ─────────────────────────────────────────────
-# GENERATE BUTTON
+# GENERATE
 # ─────────────────────────────────────────────
-st.markdown('<hr class="nst-divider">', unsafe_allow_html=True)
+st.markdown('<hr class="app-divider">', unsafe_allow_html=True)
+run_btn = st.button("Generate Stylized Image", type="primary", use_container_width=True)
 
-generate = st.button("Generate Stylized Image", type="primary", use_container_width=True)
-
-# ─────────────────────────────────────────────
-# GENERATION LOGIC
-# ─────────────────────────────────────────────
-if generate:
+if run_btn:
     if not content_file:
-        st.warning("Please upload a content image before generating.")
-    elif style_option == "Upload your own" and not style_file:
-        st.warning("Please upload a style reference image before generating.")
+        st.warning("Please upload a content image first.")
+    elif style_mode == "Upload your own" and not style_file:
+        st.warning("Please upload a style image first.")
     else:
         try:
-            with st.spinner("Loading VGG19 model weights — cached after the first run..."):
+            with st.spinner("Loading VGG19 weights…"):
                 cnn = load_vgg()
 
             content_img = load_image(content_file, image_size)
 
-            if style_option == "Upload your own":
+            if style_mode == "Upload your own":
                 style_img = load_image(style_file, image_size)
             else:
                 import requests
-                resp = requests.get(
-                    preset_styles[selected_preset],
-                    headers={"User-Agent": "Mozilla/5.0"},
-                    verify=certifi.where()
-                )
+                resp = requests.get(PRESETS[selected_preset], headers={"User-Agent": "Mozilla/5.0"}, verify=certifi.where())
                 resp.raise_for_status()
                 style_img = load_image(io.BytesIO(resp.content), image_size)
 
-            st.info(
-                f"Running {num_steps} optimization steps on {device.type.upper()} "
-                f"at {image_size}px. This may take several minutes on CPU."
-            )
+            st.info(f"Running {num_steps} steps on {device.type.upper()} at {image_size}px — this may take a few minutes on CPU.")
 
-            progress_bar = st.progress(0)
-            status_text  = st.empty()
+            prog  = st.progress(0)
+            sstxt = st.empty()
 
-            output = run_style_transfer(
-                cnn, content_img, style_img,
-                num_steps, style_weight, content_weight,
-                progress_bar, status_text
-            )
-
-            progress_bar.progress(100)
-            status_text.success("Transfer complete.")
+            output = run_style_transfer(cnn, content_img, style_img,
+                                        num_steps, style_weight, content_weight,
+                                        prog, sstxt)
+            prog.progress(100)
+            sstxt.success("Done! Your stylized image is ready.")
             result_pil = tensor_to_pil(output)
 
-            st.markdown('<hr class="nst-divider">', unsafe_allow_html=True)
-            st.markdown('<span class="section-label">Result</span>', unsafe_allow_html=True)
+            st.markdown('<hr class="app-divider">', unsafe_allow_html=True)
+            st.markdown('<span class="sec-label">Result</span>', unsafe_allow_html=True)
 
-            r1, r2, r3 = st.columns(3, gap="small")
+            r1, r2, r3 = st.columns(3)
             with r1:
                 content_file.seek(0)
                 st.image(content_file, caption="Content", use_container_width=True)
             with r2:
-                if style_option == "Upload your own":
+                if style_mode == "Upload your own":
                     style_file.seek(0)
-                    st.image(style_file, caption="Style Reference", use_container_width=True)
+                    st.image(style_file, caption="Style", use_container_width=True)
                 else:
-                    st.image(preset_styles[selected_preset], caption="Style Reference", use_container_width=True)
+                    st.image(PRESETS[selected_preset], caption="Style", use_container_width=True)
             with r3:
-                st.image(result_pil, caption="Stylized Output", use_container_width=True)
+                st.image(result_pil, caption="Output", use_container_width=True)
 
             buf = io.BytesIO()
             result_pil.save(buf, format="PNG")
             buf.seek(0)
-            st.download_button(
-                "Download Stylized Image",
-                data=buf,
-                file_name="stylized_output.png",
-                mime="image/png",
-                use_container_width=True
-            )
+            st.download_button("Download Stylized Image", data=buf,
+                               file_name="stylized_output.png", mime="image/png",
+                               use_container_width=True)
 
         except Exception as e:
-            st.warning(f"An error occurred: {e}")
+            st.warning(f"Something went wrong: {e}")
             st.exception(e)
 
 # ─────────────────────────────────────────────
-# THEORY SECTION
+# THEORY
 # ─────────────────────────────────────────────
-st.markdown('<hr class="nst-divider">', unsafe_allow_html=True)
+st.markdown('<hr class="app-divider">', unsafe_allow_html=True)
 
 with st.expander("How Neural Style Transfer works"):
     st.markdown("""
-<div class="theory-block">
+<div class="theory">
 <h4>Technical Overview</h4>
-<p>
-Neural Style Transfer uses a pretrained VGG19 convolutional neural network to separately extract
-<em>content representations</em> and <em>style representations</em> from two images, then
-synthesizes a new image that combines both.
-</p>
+<p>Neural Style Transfer uses a pretrained VGG19 CNN to extract <em>content</em> and <em>style</em>
+representations from two images, then synthesizes a new image that combines both.</p>
 <ul>
-<li><strong>Content Loss</strong> — Compares deep feature maps at <code>conv_4</code> between the generated
-image and the content image, enforcing structural and spatial fidelity.</li>
-<li><strong>Style Loss</strong> — Computes differences in <strong>Gram matrices</strong> across five
-convolutional layers. Gram matrices capture inter-channel feature correlations, encoding texture,
-color, and brushwork without regard to spatial position.</li>
-<li><strong>Gram Matrix</strong> — For a feature map of shape <code>(C, H, W)</code>, reshape to
-<code>(C, H&times;W)</code> and compute <code>G = F &times; F&sup1;</code>, yielding a
-<code>C&times;C</code> texture descriptor.</li>
-<li><strong>L-BFGS Optimizer</strong> — Iteratively updates the generated image pixels to minimize
-<code>total&nbsp;loss&nbsp;=&nbsp;style_weight&nbsp;&times;&nbsp;style_loss&nbsp;+&nbsp;content_weight&nbsp;&times;&nbsp;content_loss</code>.</li>
+<li><strong>Content Loss</strong> — MSE between deep feature maps at <code>conv_4</code>, preserving structure.</li>
+<li><strong>Style Loss</strong> — Gram matrix differences across five layers capture texture, color and brushwork.</li>
+<li><strong>Gram Matrix</strong> — Reshape <code>(C,H,W)</code> to <code>(C, H&times;W)</code>, compute <code>G = F&middot;F&sup1;</code>.</li>
+<li><strong>L-BFGS</strong> — Minimizes <code>style_weight &times; style_loss + content_weight &times; content_loss</code>.</li>
 </ul>
 <table>
-<tr><th>Purpose</th><th>VGG19 Layers</th></tr>
-<tr><td>Content representation</td><td><code>conv_4</code></td></tr>
-<tr><td>Style representation</td><td><code>conv_1, conv_2, conv_3, conv_4, conv_5</code></td></tr>
+<tr><th>Purpose</th><th>VGG19 layers</th></tr>
+<tr><td>Content</td><td><code>conv_4</code></td></tr>
+<tr><td>Style</td><td><code>conv_1, conv_2, conv_3, conv_4, conv_5</code></td></tr>
 </table>
 </div>
 """, unsafe_allow_html=True)
@@ -866,10 +809,7 @@ color, and brushwork without regard to spatial position.</li>
 # FOOTER
 # ─────────────────────────────────────────────
 st.markdown(
-    '<div class="nst-footer">'
-    'Experiment 06&ensp;&middot;&ensp;LLM &amp; Generative AI Lab&ensp;&middot;&ensp;'
-    'Fr. Conceicao Rodrigues College of Engineering&ensp;&middot;&ensp;'
-    'Dept. of Computer Engineering'
-    '</div>',
+    '<p class="app-footer">Experiment 06 &middot; LLM &amp; Generative AI Lab &middot; '
+    'Fr. Conceicao Rodrigues College of Engineering &middot; Dept. of Computer Engineering</p>',
     unsafe_allow_html=True
 )

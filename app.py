@@ -22,18 +22,18 @@ import io
 st.set_page_config(
     page_title="Neural Style Transfer",
     page_icon=None,
-    layout="wide",
+    layout="centered",
     initial_sidebar_state="collapsed"
 )
 
 # ─────────────────────────────────────────────
-# CSS — dark theme from provided design tokens
+# CSS — dark theme, Plus Jakarta Sans, narrow, no red
 # ─────────────────────────────────────────────
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&family=Noto+Serif+Georgian:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&family=Noto+Serif+Georgian:wght@400;600&display=swap');
 
-/* ── Design tokens (dark only) ── */
+/* ── Design tokens (dark) ── */
 :root {
     --background:           oklch(0 0 0);
     --foreground:           oklch(1 0 0);
@@ -50,10 +50,9 @@ st.markdown("""
     --border:               oklch(0.26 0 0);
     --input:                oklch(0.32 0 0);
     --ring:                 oklch(0.5144 0.1605 267.44);
-    --destructive:          oklch(0.704 0.191 22.216);
     --success:              oklch(0.65 0.15 145);
     --radius:               0.5rem;
-    --font-sans:            'Geist', sans-serif;
+    --font-sans:            'Plus Jakarta Sans', sans-serif;
     --font-mono:            'Geist Mono', monospace;
     --font-serif:           'Noto Serif Georgian', ui-serif, serif;
 }
@@ -65,51 +64,63 @@ html, body,
 [data-testid="block-container"] {
     background-color: var(--background) !important;
     color: var(--foreground);
-    font-family: var(--font-sans);
+    font-family: var(--font-sans) !important;
 }
 
-/* Hide all Streamlit chrome */
+/* Hide Streamlit chrome */
 #MainMenu, footer, header,
 [data-testid="stDecoration"],
 [data-testid="stSidebarNav"],
 [data-testid="collapsedControl"] { display: none !important; }
 
-/* Sidebar fully hidden */
 [data-testid="stSidebar"] { display: none !important; }
 
-/* Main content max-width + padding */
+/* Narrow centered layout */
 [data-testid="block-container"] {
-    max-width: 1100px !important;
-    padding: 2.5rem 2rem 4rem 2rem !important;
+    max-width: 720px !important;
+    padding: 2.5rem 1.5rem 4rem 1.5rem !important;
     margin: 0 auto !important;
 }
 
 /* ── Typography ── */
 h1, h2, h3 {
-    font-family: var(--font-serif) !important;
+    font-family: var(--font-sans) !important;
     color: var(--foreground) !important;
     letter-spacing: -0.02em;
 }
 
+p, span, label, div {
+    font-family: var(--font-sans) !important;
+}
+
 /* ── Page header ── */
+.nst-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--primary);
+    margin-bottom: 0.75rem;
+    display: block;
+}
 .nst-header {
-    padding: 2.5rem 0 2rem 0;
+    padding: 1.5rem 0 2rem 0;
     border-bottom: 1px solid var(--border);
-    margin-bottom: 2.5rem;
+    margin-bottom: 2rem;
 }
 .nst-header h1 {
-    font-family: var(--font-serif);
-    font-size: 2.4rem;
-    font-weight: 600;
+    font-family: var(--font-sans) !important;
+    font-size: 2rem;
+    font-weight: 700;
     color: var(--foreground);
-    letter-spacing: -0.025em;
-    margin: 0 0 0.5rem 0;
-    line-height: 1.1;
+    letter-spacing: -0.03em;
+    margin: 0 0 0.4rem 0;
+    line-height: 1.15;
 }
 .nst-header p {
     font-family: var(--font-sans);
-    font-size: 0.9rem;
-    font-weight: 300;
+    font-size: 0.875rem;
+    font-weight: 400;
     color: var(--muted-foreground);
     margin: 0;
     line-height: 1.6;
@@ -119,41 +130,11 @@ h1, h2, h3 {
 .section-label {
     display: block;
     font-family: var(--font-mono);
-    font-size: 0.65rem;
+    font-size: 0.62rem;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: var(--primary);
-    margin-bottom: 0.6rem;
-}
-
-/* ── Parameter card (inline, no sidebar) ── */
-.param-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1px;
-    background: var(--border);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
-    margin-bottom: 2rem;
-}
-.param-cell {
-    background: var(--card);
-    padding: 1rem 1.25rem;
-}
-.param-cell-label {
-    font-family: var(--font-mono);
-    font-size: 0.6rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
     color: var(--muted-foreground);
-    margin-bottom: 0.3rem;
-}
-.param-cell-value {
-    font-family: var(--font-sans);
-    font-size: 0.92rem;
-    font-weight: 500;
-    color: var(--card-foreground);
+    margin-bottom: 0.6rem;
 }
 
 /* ── Device badge ── */
@@ -161,10 +142,10 @@ h1, h2, h3 {
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    padding: 0.3rem 0.75rem;
+    padding: 0.25rem 0.65rem;
     border-radius: calc(var(--radius) - 2px);
     font-family: var(--font-mono);
-    font-size: 0.68rem;
+    font-size: 0.65rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     margin-bottom: 1.5rem;
@@ -172,7 +153,7 @@ h1, h2, h3 {
 .device-gpu { background: oklch(0.18 0.05 145); color: oklch(0.75 0.15 145); border: 1px solid oklch(0.28 0.08 145); }
 .device-cpu { background: oklch(0.2 0.04 267); color: oklch(0.75 0.1 267);  border: 1px solid oklch(0.32 0.08 267); }
 
-/* ── Upload zone hint ── */
+/* ── Upload hint ── */
 .upload-hint {
     font-family: var(--font-sans);
     font-size: 0.78rem;
@@ -185,7 +166,7 @@ h1, h2, h3 {
 .nst-divider {
     border: none;
     border-top: 1px solid var(--border);
-    margin: 2rem 0;
+    margin: 1.75rem 0;
 }
 
 /* ── Status text ── */
@@ -201,27 +182,27 @@ h1, h2, h3 {
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 1.75rem;
+    padding: 1.5rem;
 }
 .theory-block h4 {
-    font-family: var(--font-serif);
-    font-size: 1.05rem;
-    font-weight: 400;
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    font-weight: 600;
     color: var(--card-foreground);
-    margin: 0 0 1rem 0;
+    margin: 0 0 0.85rem 0;
     letter-spacing: -0.01em;
 }
 .theory-block p, .theory-block li {
     font-family: var(--font-sans);
-    font-size: 0.85rem;
+    font-size: 0.84rem;
     color: var(--muted-foreground);
     line-height: 1.75;
 }
 .theory-block li { margin-bottom: 0.4rem; }
-.theory-block strong { color: var(--card-foreground); font-weight: 500; }
+.theory-block strong { color: var(--card-foreground); font-weight: 600; }
 .theory-block code {
     font-family: var(--font-mono);
-    font-size: 0.76rem;
+    font-size: 0.75rem;
     background: var(--muted);
     color: var(--accent-foreground);
     padding: 1px 6px;
@@ -230,34 +211,35 @@ h1, h2, h3 {
 .theory-block table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 1.25rem;
+    margin-top: 1.1rem;
     font-size: 0.82rem;
 }
 .theory-block th {
     font-family: var(--font-mono);
-    font-size: 0.62rem;
+    font-size: 0.6rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--muted-foreground);
-    padding: 0.5rem 0.75rem;
+    padding: 0.45rem 0.65rem;
     border-bottom: 1px solid var(--border);
     text-align: left;
     font-weight: 400;
 }
 .theory-block td {
     font-family: var(--font-sans);
-    padding: 0.55rem 0.75rem;
+    padding: 0.5rem 0.65rem;
     border-bottom: 1px solid var(--border);
     color: var(--card-foreground);
+    font-size: 0.83rem;
 }
 
 /* ── Footer ── */
 .nst-footer {
-    margin-top: 3.5rem;
-    padding-top: 1.5rem;
+    margin-top: 3rem;
+    padding-top: 1.25rem;
     border-top: 1px solid var(--border);
     font-family: var(--font-mono);
-    font-size: 0.65rem;
+    font-size: 0.62rem;
     letter-spacing: 0.1em;
     color: var(--muted-foreground);
     text-align: center;
@@ -265,6 +247,16 @@ h1, h2, h3 {
 }
 
 /* ── Streamlit widget overrides ── */
+
+/* All widget labels */
+[data-testid="stWidgetLabel"] p,
+[data-testid="stWidgetLabel"] label,
+label {
+    font-family: var(--font-sans) !important;
+    font-size: 0.83rem !important;
+    color: var(--muted-foreground) !important;
+    font-weight: 500 !important;
+}
 
 /* File uploader */
 [data-testid="stFileUploader"] > div {
@@ -326,19 +318,25 @@ h1, h2, h3 {
     border-color: var(--primary) !important;
 }
 
+/* Slider track fill — override any red */
+[data-testid="stSlider"] [data-baseweb="slider"] [data-testid="stSliderTrack"] > div:first-child,
+[data-testid="stSelectSlider"] [data-baseweb="slider"] [data-testid="stSliderTrack"] > div:first-child {
+    background: var(--primary) !important;
+}
+
 /* Primary button */
 [data-testid="baseButton-primary"] {
     background: var(--primary) !important;
     color: var(--primary-foreground) !important;
     border: none !important;
     font-family: var(--font-sans) !important;
-    font-weight: 500 !important;
+    font-weight: 600 !important;
     font-size: 0.875rem !important;
-    letter-spacing: 0.02em !important;
+    letter-spacing: 0.01em !important;
     border-radius: var(--radius) !important;
     transition: opacity 0.15s ease !important;
 }
-[data-testid="baseButton-primary"]:hover { opacity: 0.88 !important; }
+[data-testid="baseButton-primary"]:hover { opacity: 0.85 !important; }
 
 /* Secondary / download button */
 [data-testid="baseButton-secondary"] {
@@ -355,17 +353,25 @@ h1, h2, h3 {
     color: var(--foreground) !important;
 }
 
-/* Alerts */
+/* Alerts — replace red with muted/primary tones */
 [data-testid="stAlert"] {
     background: var(--card) !important;
     border-radius: var(--radius) !important;
-    border-left-width: 2px !important;
+    border-left: 2px solid var(--primary) !important;
     font-family: var(--font-sans) !important;
     font-size: 0.84rem !important;
     color: var(--card-foreground) !important;
 }
+/* Override error alert red */
+[data-testid="stAlert"][data-baseweb="notification"] {
+    border-left-color: var(--muted-foreground) !important;
+}
+div[data-testid="stNotification"] {
+    background: var(--card) !important;
+    border-color: var(--primary) !important;
+}
 
-/* Progress bar */
+/* Progress bar — no red */
 [data-testid="stProgress"] > div > div {
     background: var(--primary) !important;
     border-radius: 99px !important;
@@ -394,7 +400,7 @@ h1, h2, h3 {
 /* Image captions */
 [data-testid="caption"] {
     font-family: var(--font-mono) !important;
-    font-size: 0.64rem !important;
+    font-size: 0.62rem !important;
     letter-spacing: 0.1em !important;
     text-transform: uppercase !important;
     color: var(--muted-foreground) !important;
@@ -408,9 +414,16 @@ h1, h2, h3 {
     color: var(--muted-foreground) !important;
 }
 
-/* Column gap override */
+/* Info / warning / success box overrides — no red */
+.stAlert > div {
+    background: var(--card) !important;
+    color: var(--card-foreground) !important;
+    font-family: var(--font-sans) !important;
+}
+
+/* Column gap */
 [data-testid="stHorizontalBlock"] {
-    gap: 1.5rem !important;
+    gap: 1rem !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -425,13 +438,14 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # ─────────────────────────────────────────────
 st.markdown("""
 <div class="nst-header">
+    <span class="nst-eyebrow">LLM &amp; Gen AI Lab &mdash; Experiment 6 &mdash; Task 2</span>
     <h1>Neural Style Transfer</h1>
     <p>Reimagine any photograph through the visual language of artistic masterworks, powered by VGG19.</p>
 </div>
 """, unsafe_allow_html=True)
 
 # ─────────────────────────────────────────────
-# HELPER FUNCTIONS — unchanged
+# HELPER FUNCTIONS
 # ─────────────────────────────────────────────
 def load_image(image_file, size):
     image = Image.open(image_file).convert("RGB")
@@ -546,16 +560,19 @@ def run_style_transfer(cnn, content_img, style_img, num_steps, style_weight,
     return input_img
 
 # ─────────────────────────────────────────────
-# PARAMETERS — inline, no sidebar
+# DEVICE BADGE
 # ─────────────────────────────────────────────
 if device.type == "cuda":
-    st.markdown('<span class="device-badge device-gpu">GPU &mdash; Accelerated</span>', unsafe_allow_html=True)
+    st.markdown('<span class="device-badge device-gpu">&#9679; GPU &mdash; Accelerated</span>', unsafe_allow_html=True)
 else:
-    st.markdown('<span class="device-badge device-cpu">CPU &mdash; May be slow</span>', unsafe_allow_html=True)
+    st.markdown('<span class="device-badge device-cpu">&#9679; CPU &mdash; May be slow</span>', unsafe_allow_html=True)
 
+# ─────────────────────────────────────────────
+# PARAMETERS
+# ─────────────────────────────────────────────
 st.markdown('<span class="section-label">Parameters</span>', unsafe_allow_html=True)
 
-p1, p2, p3, p4 = st.columns(4, gap="small")
+p1, p2 = st.columns(2, gap="small")
 with p1:
     image_size = st.selectbox(
         "Resolution",
@@ -563,79 +580,75 @@ with p1:
         index=0,
         help="Smaller = faster. 128px recommended on CPU."
     )
+    content_weight = st.slider("Content Weight", min_value=1, max_value=10, value=1)
 with p2:
     num_steps = st.slider("Optimization Steps", min_value=100, max_value=600, value=200, step=50)
-with p3:
     style_weight = st.select_slider(
         "Style Weight",
         options=[1e4, 1e5, 5e5, 1e6],
         value=1e5,
         format_func=lambda x: f"{x:.0e}"
     )
-with p4:
-    content_weight = st.slider("Content Weight", min_value=1, max_value=10, value=1)
 
 st.markdown('<hr class="nst-divider">', unsafe_allow_html=True)
 
 # ─────────────────────────────────────────────
 # IMAGE INPUTS
 # ─────────────────────────────────────────────
-col1, col2 = st.columns(2, gap="large")
+st.markdown('<span class="section-label">01 &mdash; Content Image</span>', unsafe_allow_html=True)
+content_file = st.file_uploader(
+    "content_upload",
+    type=["jpg", "jpeg", "png"],
+    key="content",
+    label_visibility="collapsed"
+)
+st.markdown(
+    '<p class="upload-hint">The photograph whose structure and composition will be preserved.</p>',
+    unsafe_allow_html=True
+)
+if content_file:
+    st.image(content_file, caption="Content", use_container_width=True)
 
-with col1:
-    st.markdown('<span class="section-label">01 &mdash; Content Image</span>', unsafe_allow_html=True)
-    content_file = st.file_uploader(
-        "content_upload",
+st.markdown('<hr class="nst-divider">', unsafe_allow_html=True)
+
+st.markdown('<span class="section-label">02 &mdash; Style Reference</span>', unsafe_allow_html=True)
+
+preset_styles = {
+    "Van Gogh — Starry Night": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/1280px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg",
+    "Picasso — Weeping Woman": "https://upload.wikimedia.org/wikipedia/en/1/14/Picasso_The_Weeping_Woman_Tate_identifier_T05010_10.jpg",
+    "Monet — Water Lilies":    "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Claude_Monet_-_Water_Lilies_-_1906%2C_Ryerson.jpg/1280px-Claude_Monet_-_Water_Lilies_-_1906%2C_Ryerson.jpg",
+}
+
+style_option = st.radio(
+    "style_source",
+    ["Upload your own", "Use preset artwork"],
+    horizontal=True,
+    label_visibility="collapsed"
+)
+
+style_file     = None
+selected_preset = None
+
+if style_option == "Upload your own":
+    style_file = st.file_uploader(
+        "style_upload",
         type=["jpg", "jpeg", "png"],
-        key="content",
+        key="style",
         label_visibility="collapsed"
     )
     st.markdown(
-        '<p class="upload-hint">The photograph whose structure and composition will be preserved.</p>',
+        '<p class="upload-hint">Any artwork or texture — its visual character will be transferred onto the content image.</p>',
         unsafe_allow_html=True
     )
-    if content_file:
-        st.image(content_file, caption="Content", use_container_width=True)
-
-with col2:
-    st.markdown('<span class="section-label">02 &mdash; Style Reference</span>', unsafe_allow_html=True)
-
-    preset_styles = {
-        "Van Gogh — Starry Night": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/1280px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg",
-        "Picasso — Weeping Woman": "https://upload.wikimedia.org/wikipedia/en/1/14/Picasso_The_Weeping_Woman_Tate_identifier_T05010_10.jpg",
-        "Monet — Water Lilies":    "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Claude_Monet_-_Water_Lilies_-_1906%2C_Ryerson.jpg/1280px-Claude_Monet_-_Water_Lilies_-_1906%2C_Ryerson.jpg",
-    }
-
-    style_option = st.radio(
-        "style_source",
-        ["Upload your own", "Use preset artwork"],
-        horizontal=True,
+    if style_file:
+        st.image(style_file, caption="Style Reference", use_container_width=True)
+else:
+    selected_preset = st.selectbox(
+        "preset_select",
+        list(preset_styles.keys()),
         label_visibility="collapsed"
     )
-
-    style_file     = None
-    selected_preset = None
-
-    if style_option == "Upload your own":
-        style_file = st.file_uploader(
-            "style_upload",
-            type=["jpg", "jpeg", "png"],
-            key="style",
-            label_visibility="collapsed"
-        )
-        st.markdown(
-            '<p class="upload-hint">Any artwork or texture — its visual character will be transferred onto the content image.</p>',
-            unsafe_allow_html=True
-        )
-        if style_file:
-            st.image(style_file, caption="Style Reference", use_container_width=True)
-    else:
-        selected_preset = st.selectbox(
-            "preset_select",
-            list(preset_styles.keys()),
-            label_visibility="collapsed"
-        )
-        st.image(preset_styles[selected_preset], caption=selected_preset, use_container_width=True)
+    st.image(preset_styles[selected_preset], caption=selected_preset, use_container_width=True)
 
 # ─────────────────────────────────────────────
 # GENERATE BUTTON
@@ -649,9 +662,9 @@ generate = st.button("Generate Stylized Image", type="primary", use_container_wi
 # ─────────────────────────────────────────────
 if generate:
     if not content_file:
-        st.error("Please upload a content image before generating.")
+        st.warning("Please upload a content image before generating.")
     elif style_option == "Upload your own" and not style_file:
-        st.error("Please upload a style reference image before generating.")
+        st.warning("Please upload a style reference image before generating.")
     else:
         try:
             with st.spinner("Loading VGG19 model weights — cached after the first run..."):
@@ -692,7 +705,7 @@ if generate:
             st.markdown('<hr class="nst-divider">', unsafe_allow_html=True)
             st.markdown('<span class="section-label">Result</span>', unsafe_allow_html=True)
 
-            r1, r2, r3 = st.columns(3, gap="medium")
+            r1, r2, r3 = st.columns(3, gap="small")
             with r1:
                 content_file.seek(0)
                 st.image(content_file, caption="Content", use_container_width=True)
@@ -717,7 +730,7 @@ if generate:
             )
 
         except Exception as e:
-            st.error(f"An error occurred: {e}")
+            st.warning(f"An error occurred: {e}")
             st.exception(e)
 
 # ─────────────────────────────────────────────

@@ -27,11 +27,106 @@ st.set_page_config(
 )
 
 # ─────────────────────────────────────────────
-# CSS — dark theme, Plus Jakarta Sans, narrow, no red
+# CSS — dark theme, Plus Jakarta Sans, narrow, NO RED
 # ─────────────────────────────────────────────
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&family=Noto+Serif+Georgian:wght@400;600&display=swap');
+
+/* ════════════════════════════════════════════
+   NUCLEAR RED ELIMINATION
+   Target every known BaseWeb/Streamlit element
+   that shows red by default
+   ════════════════════════════════════════════ */
+
+/* Slider thumb — BaseWeb renders inline style; override fill */
+[data-baseweb="slider"] [role="slider"] {
+    background-color: #5b6ef5 !important;
+    border-color: #5b6ef5 !important;
+    box-shadow: none !important;
+}
+/* Slider filled track */
+[data-baseweb="slider"] div[data-testid="stSliderTrackFill"],
+[data-baseweb="slider"] > div > div > div:first-child {
+    background-color: #5b6ef5 !important;
+}
+/* BaseWeb slider inner track segments */
+[data-baseweb="slider"] > div > div > div {
+    background-color: #3a3a4a !important;
+}
+[data-baseweb="slider"] > div > div > div:first-child {
+    background-color: #5b6ef5 !important;
+}
+/* Slider value tooltip */
+[data-baseweb="slider"] [data-baseweb="tooltip"] {
+    background-color: #5b6ef5 !important;
+}
+/* Thumb knob absolute override */
+div[class*="StyledThumb"] {
+    background-color: #5b6ef5 !important;
+    border-color: #5b6ef5 !important;
+}
+/* Track fill class-based */
+div[class*="StyledInnerTrack"]:first-child {
+    background-color: #5b6ef5 !important;
+}
+
+/* Primary button — force blue, kill salmon/red */
+button[kind="primary"],
+[data-testid="baseButton-primary"],
+[data-testid="baseButton-primary"]:focus,
+[data-testid="baseButton-primary"]:active {
+    background-color: #5b6ef5 !important;
+    background: #5b6ef5 !important;
+    border-color: #5b6ef5 !important;
+    color: #ffffff !important;
+    box-shadow: none !important;
+}
+[data-testid="baseButton-primary"]:hover {
+    background-color: #4a5ce0 !important;
+    background: #4a5ce0 !important;
+}
+
+/* Radio button selected dot */
+[data-baseweb="radio"] [data-checked="true"] div,
+[data-baseweb="radio"] input[type="radio"]:checked + div,
+[data-baseweb="radio"] [aria-checked="true"] div {
+    background-color: #5b6ef5 !important;
+    border-color: #5b6ef5 !important;
+}
+/* Radio outer ring */
+[data-baseweb="radio"] div[role="radio"][aria-checked="true"] {
+    border-color: #5b6ef5 !important;
+}
+/* All radio circles */
+[data-baseweb="radio"] div {
+    border-color: inherit;
+}
+
+/* Focus ring — kill red outline */
+*:focus, *:focus-visible {
+    outline-color: #5b6ef5 !important;
+    box-shadow: 0 0 0 2px rgba(91,110,245,0.35) !important;
+}
+
+/* Notification / alert icon colors */
+[data-testid="stNotification"] svg,
+[data-baseweb="notification"] svg {
+    fill: #5b6ef5 !important;
+    color: #5b6ef5 !important;
+}
+
+/* Select slider selected value indicator */
+[data-testid="stSelectSlider"] [role="slider"] {
+    background-color: #5b6ef5 !important;
+    border-color: #5b6ef5 !important;
+}
+
+/* Any lingering inline color="red" or style="color:red" */
+[style*="color: rgb(255"] { color: inherit !important; }
+[style*="background-color: rgb(255, 75"] { background-color: #5b6ef5 !important; }
+[style*="background: rgb(255, 75"] { background: #5b6ef5 !important; }
+
 
 /* ── Design tokens (dark) ── */
 :root {
